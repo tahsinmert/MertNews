@@ -60,4 +60,4 @@
 	<title>{$t('footer.privacy')} - MertNews</title>
 </svelte:head>
 
-<AppleInfoPage icon="lock" titleKey="footer.privacy" subtitleKey="page.privacy.subtitle" {tocItems} {sections} />
+<AppleInfoPage titleKey="footer.privacy" subtitleKey="page.privacy.subtitle" {tocItems} {sections} />

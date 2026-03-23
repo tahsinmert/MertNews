@@ -1,12 +1,10 @@
 <script>
-	import { fade, fly } from 'svelte/transition';
 	import { t } from '$lib/i18n';
 
 	let email = '';
-	let status = 'idle'; // idle | loading | success | error
+	let status = 'idle';
 	let message = '';
 
-	// Preferences state
 	let selectedCategories = {
 		world: true,
 		turkey: true,
@@ -15,7 +13,7 @@
 		finance: false,
 		sports: false
 	};
-	let frequency = 'daily'; // daily | weekly
+	let frequency = 'daily';
 
 	async function handleSubmit(event) {
 		event.preventDefault();
@@ -34,15 +32,9 @@
 			const res = await fetch('/api/subscribe', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ 
-					email, 
-					categories: activeCategories,
-					frequency 
-				})
+				body: JSON.stringify({ email, categories: activeCategories, frequency })
 			});
-
 			const data = await res.json();
-
 			if (res.ok) {
 				status = 'success';
 				message = data.message;
@@ -51,7 +43,7 @@
 				status = 'error';
 				message = data.message;
 			}
-		} catch (error) {
+		} catch {
 			status = 'error';
 			message = $t('subscribe.errorNetwork');
 		}
@@ -62,373 +54,339 @@
 	<title>{$t('nav.subscribe')} - MertNews</title>
 </svelte:head>
 
-<div class="subscribe-page" in:fade={{ duration: 600 }}>
-	<div class="container wrapper">
-		
-		<div class="content-box">
-			<div class="header-section" in:fly={{ y: 20, duration: 800, delay: 100 }}>
-				<div class="icon-wrapper">
-					<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-						<polyline points="22,6 12,13 2,6"></polyline>
-					</svg>
-				</div>
-				<h1 class="title">{$t('subscribe.title')}</h1>
-				<p class="subtitle">{$t('subscribe.subtitle')}</p>
-			</div>
-
-			<form class="subscribe-form" on:submit={handleSubmit} in:fly={{ y: 20, duration: 800, delay: 200 }}>
-				
-				{#if status === 'success'}
-					<div class="success-card" in:fade={{ duration: 300 }}>
-						<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--apple-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-							<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-							<polyline points="22 4 12 14.01 9 11.01"></polyline>
-						</svg>
-						<h3>{$t('subscribe.successTitle')}</h3>
-						<p>{message}</p>
-						<button type="button" class="btn-secondary mt-3" on:click={() => status = 'idle'}>{$t('subscribe.btnReset')}</button>
-					</div>
-				{:else}
-					<div class="input-group">
-						<label for="email" class="sr-only">E-posta Adresi</label>
-						<input 
-							type="email" 
-							id="email" 
-							bind:value={email} 
-							placeholder={$t('subscribe.emailPlaceholder')}
-							required
-							disabled={status === 'loading'}
-						/>
-					</div>
-
-					<div class="preferences-group">
-						<h3 class="group-title">{$t('subscribe.categoriesTitle')}</h3>
-						<div class="chips-container">
-							<label class="chip">
-								<input type="checkbox" bind:checked={selectedCategories.world} disabled={status === 'loading'} />
-								<span class="chip-text">{$t('nav.world')}</span>
-							</label>
-							<label class="chip">
-								<input type="checkbox" bind:checked={selectedCategories.turkey} disabled={status === 'loading'} />
-								<span class="chip-text">{$t('nav.turkey')}</span>
-							</label>
-							<label class="chip">
-								<input type="checkbox" bind:checked={selectedCategories.technology} disabled={status === 'loading'} />
-								<span class="chip-text">{$t('nav.technology')}</span>
-							</label>
-							<label class="chip">
-								<input type="checkbox" bind:checked={selectedCategories.economy} disabled={status === 'loading'} />
-								<span class="chip-text">{$t('nav.economy')}</span>
-							</label>
-							<label class="chip">
-								<input type="checkbox" bind:checked={selectedCategories.finance} disabled={status === 'loading'} />
-								<span class="chip-text">{$t('nav.finance')}</span>
-							</label>
-							<label class="chip">
-								<input type="checkbox" bind:checked={selectedCategories.sports} disabled={status === 'loading'} />
-								<span class="chip-text">Spor</span>
-							</label>
-						</div>
-					</div>
-
-					<div class="preferences-group">
-						<h3 class="group-title">{$t('subscribe.frequencyTitle')}</h3>
-						<div class="segment-control">
-							<label class="segment {frequency === 'daily' ? 'active' : ''}">
-								<input type="radio" value="daily" bind:group={frequency} disabled={status === 'loading'} />
-								<span>{$t('subscribe.freqDaily')}</span>
-							</label>
-							<label class="segment {frequency === 'weekly' ? 'active' : ''}">
-								<input type="radio" value="weekly" bind:group={frequency} disabled={status === 'loading'} />
-								<span>{$t('subscribe.freqWeekly')}</span>
-							</label>
-						</div>
-					</div>
-
-					{#if status === 'error'}
-						<div class="error-msg" in:fade>{message}</div>
-					{/if}
-
-					<button type="submit" class="btn-primary form-btn" disabled={status === 'loading'}>
-						{#if status === 'loading'}
-							<span class="spinner"></span> {$t('subscribe.btnLoading')}
-						{:else}
-							{$t('subscribe.btnSubmit')}
-						{/if}
-					</button>
-					
-					<p class="terms-text">
-						{@html $t('subscribe.terms').replace('{privacy}', `<a href="/gizlilik">${$t('subscribe.privacyLink')}</a>`)}
-					</p>
-				{/if}
-			</form>
+<main class="pg">
+	<div class="pg-header">
+		<div class="pg-header-inner container">
+			<h1 class="pg-title">{$t('subscribe.title')}</h1>
+			<p class="pg-subtitle">{$t('subscribe.subtitle')}</p>
 		</div>
-		
 	</div>
-</div>
+
+	<div class="pg-body container">
+		{#if status === 'success'}
+			<div class="done">
+				<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--apple-green,#34c759)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+				<h2>{$t('subscribe.successTitle')}</h2>
+				<p>{message}</p>
+				<button type="button" class="link-btn" on:click={() => status = 'idle'}>{$t('subscribe.btnReset')}</button>
+			</div>
+		{:else}
+			<form class="sub-form" on:submit={handleSubmit}>
+				<div class="field">
+					<label for="email">{$t('subscribe.emailPlaceholder')}</label>
+					<input
+						type="email"
+						id="email"
+						bind:value={email}
+						placeholder="name@example.com"
+						required
+						disabled={status === 'loading'}
+					/>
+				</div>
+
+				<fieldset class="field">
+					<legend>{$t('subscribe.categoriesTitle')}</legend>
+					<div class="chips">
+						{#each [
+							['world', $t('nav.world')],
+							['turkey', $t('nav.turkey')],
+							['technology', $t('nav.technology')],
+							['economy', $t('nav.economy')],
+							['finance', $t('nav.finance')],
+							['sports', $t('nav.sports')]
+						] as [key, label]}
+							<label class="chip" class:on={selectedCategories[key]}>
+								<input type="checkbox" bind:checked={selectedCategories[key]} disabled={status === 'loading'} />
+								{label}
+							</label>
+						{/each}
+					</div>
+				</fieldset>
+
+				<fieldset class="field">
+					<legend>{$t('subscribe.frequencyTitle')}</legend>
+					<div class="seg">
+						<label class="seg-opt" class:active={frequency === 'daily'}>
+							<input type="radio" value="daily" bind:group={frequency} disabled={status === 'loading'} />
+							{$t('subscribe.freqDaily')}
+						</label>
+						<label class="seg-opt" class:active={frequency === 'weekly'}>
+							<input type="radio" value="weekly" bind:group={frequency} disabled={status === 'loading'} />
+							{$t('subscribe.freqWeekly')}
+						</label>
+					</div>
+				</fieldset>
+
+				{#if status === 'error'}
+					<p class="err">{message}</p>
+				{/if}
+
+				<button type="submit" class="submit-btn" disabled={status === 'loading'}>
+					{#if status === 'loading'}
+						<span class="spinner" aria-hidden="true"></span>
+					{/if}
+					{status === 'loading' ? $t('subscribe.btnLoading') : $t('subscribe.btnSubmit')}
+				</button>
+
+				<p class="terms">
+					{@html $t('subscribe.terms').replace('{privacy}', `<a href="/gizlilik">${$t('subscribe.privacyLink')}</a>`)}
+				</p>
+			</form>
+		{/if}
+	</div>
+</main>
 
 <style>
-	.subscribe-page {
+	.pg {
 		min-height: 100vh;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: calc(var(--nav-height) + 4rem) 0 4rem;
-		background: var(--bg);
+		padding-top: var(--nav-height);
 	}
 
-	.wrapper {
-		max-width: 600px;
-		width: 100%;
-	}
-
-	.content-box {
-		background: var(--card-bg);
-		border: 1px solid var(--card-border);
-		border-radius: 28px;
-		padding: 3rem;
-		box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0, 0, 0, 0.05);
-	}
-
-	:global([prefers-color-scheme="dark"]) .content-box {
-		box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.1);
-	}
-
-	.header-section {
+	.pg-header {
+		padding: 4rem 0 2.5rem;
+		border-bottom: 1px solid var(--card-border);
 		text-align: center;
-		margin-bottom: 2.5rem;
 	}
 
-	.icon-wrapper {
-		background: var(--apple-gray-100);
-		width: 64px;
-		height: 64px;
-		border-radius: 20px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin: 0 auto 1.5rem;
-		color: var(--apple-blue);
+	.pg-header-inner {
+		max-width: 600px;
 	}
 
-	:global([prefers-color-scheme="dark"]) .icon-wrapper {
-		background: var(--apple-gray-500);
+	.pg-title {
+		font-size: clamp(2.25rem, 5.5vw, 3.5rem);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		line-height: 1.06;
+		color: var(--fg);
+		margin: 0;
 	}
 
-	.title {
-		font-size: clamp(1.75rem, 5vw, 2.2rem);
-		margin-bottom: 0.75rem;
-	}
-
-	.subtitle {
-		color: var(--muted);
-		font-size: 1.1rem;
-		max-width: 400px;
-		margin: 0 auto;
+	.pg-subtitle {
+		margin-top: 1rem;
+		font-size: 1.125rem;
 		line-height: 1.5;
+		color: var(--muted);
 	}
 
-	.subscribe-form {
+	.pg-body {
+		max-width: 480px;
+		padding-top: 2.5rem;
+		padding-bottom: 4rem;
+	}
+
+	.sub-form {
 		display: flex;
 		flex-direction: column;
-		gap: 2rem;
+		gap: 1.75rem;
 	}
 
-	.input-group input {
-		width: 100%;
-		padding: 1rem 1.25rem;
-		font-size: 1.1rem;
-		font-family: inherit;
-		background: var(--apple-gray-100);
-		border: 1px solid transparent;
-		border-radius: 14px;
+	.field {
+		border: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.field label,
+	.field legend {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 600;
 		color: var(--fg);
-		transition: all 0.2s ease;
+		margin-bottom: 0.5rem;
+		padding: 0;
 	}
 
-	:global([prefers-color-scheme="dark"]) .input-group input {
-		background: var(--apple-gray-500);
+	.field input[type='email'] {
+		width: 100%;
+		padding: 0.875rem 1rem;
+		font-size: 1rem;
+		font-family: inherit;
+		background: var(--apple-gray-100, #f5f5f7);
+		border: 1.5px solid transparent;
+		border-radius: 10px;
+		color: var(--fg);
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
 	}
 
-	.input-group input:focus {
+	:global([prefers-color-scheme='dark']) .field input[type='email'] {
+		background: rgba(255, 255, 255, 0.06);
+	}
+
+	.field input[type='email']:focus {
 		outline: none;
 		border-color: var(--apple-blue);
-		background: var(--bg);
-		box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.15);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--apple-blue) 18%, transparent);
 	}
 
-	.sr-only {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		border: 0;
-	}
-
-	.group-title {
-		font-size: 0.95rem;
-		color: var(--fg);
-		margin-bottom: 1rem;
-		font-weight: 500;
-	}
-
-	.chips-container {
+	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.75rem;
+		gap: 0.5rem;
 	}
 
 	.chip {
 		cursor: pointer;
-	}
-
-	.chip input {
-		display: none;
-	}
-
-	.chip-text {
+		font-size: 0.875rem;
+		font-weight: 500;
+		padding: 0.5rem 0.875rem;
+		min-height: 44px;
 		display: inline-flex;
 		align-items: center;
-		min-height: 44px;
-		padding: 0.5rem 1rem;
-		background: var(--apple-gray-100);
+		border-radius: 980px;
+		border: 1px solid var(--card-border);
 		color: var(--muted);
-		border-radius: 98px;
-		font-size: 0.95rem;
-		transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-		border: 1px solid transparent;
+		background: transparent;
+		transition: all 0.15s ease;
+		user-select: none;
 	}
 
-	:global([prefers-color-scheme="dark"]) .chip-text {
-		background: var(--apple-gray-500);
-	}
+	.chip input { display: none; }
 
-	.chip input:checked + .chip-text {
-		background: rgba(0, 102, 204, 0.1);
-		color: var(--apple-blue);
+	.chip.on {
 		border-color: var(--apple-blue);
-		font-weight: 500;
-	}
-	
-	:global([prefers-color-scheme="dark"]) .chip input:checked + .chip-text {
-		background: rgba(10, 132, 255, 0.15);
+		color: var(--apple-blue);
+		background: color-mix(in srgb, var(--apple-blue) 8%, transparent);
 	}
 
-	.segment-control {
+	.seg {
 		display: flex;
-		background: var(--apple-gray-100);
-		border-radius: 12px;
-		padding: 4px;
-		position: relative;
+		background: var(--apple-gray-100, #f5f5f7);
+		border-radius: 10px;
+		padding: 3px;
 	}
 
-	:global([prefers-color-scheme="dark"]) .segment-control {
-		background: var(--apple-gray-500);
+	:global([prefers-color-scheme='dark']) .seg {
+		background: rgba(255, 255, 255, 0.06);
 	}
 
-	.segment {
+	.seg-opt {
 		flex: 1;
 		text-align: center;
-		padding: 0.5rem 0;
 		min-height: 44px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		color: var(--muted);
-		font-size: 0.95rem;
+		font-size: 0.9375rem;
 		font-weight: 500;
-		position: relative;
-		z-index: 2;
-		border-radius: 9px;
-		transition: color 0.2s ease;
+		border-radius: 8px;
+		transition: color 0.15s, background 0.15s, box-shadow 0.15s;
 	}
 
-	.segment input {
-		display: none;
-	}
+	.seg-opt input { display: none; }
 
-	.segment.active {
+	.seg-opt.active {
 		color: var(--fg);
-		background: var(--bg);
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+		background: var(--bg, #fff);
+		box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 	}
 
-	.form-btn {
+	.err {
+		color: var(--apple-red, #ff3b30);
+		font-size: 0.875rem;
+		text-align: center;
+		padding: 0.625rem 1rem;
+		border-radius: 8px;
+		background: color-mix(in srgb, var(--apple-red, #ff3b30) 8%, transparent);
+		margin: 0;
+	}
+
+	.submit-btn {
 		width: 100%;
-		padding: 1rem;
-		font-size: 1.1rem;
-		border-radius: 14px;
+		min-height: 50px;
+		padding: 0 1.5rem;
+		font-size: 1.0625rem;
+		font-weight: 500;
+		font-family: inherit;
+		color: #fff;
+		background: var(--apple-blue);
+		border: none;
+		border-radius: 12px;
+		cursor: pointer;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 10px;
+		gap: 0.5rem;
+		transition: opacity 0.15s ease;
+	}
+
+	.submit-btn:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+
+	.submit-btn:not(:disabled):active {
+		opacity: 0.78;
 	}
 
 	.spinner {
-		width: 20px;
-		height: 20px;
-		border: 2px solid rgba(255, 255, 255, 0.3);
-		border-top-color: white;
+		width: 18px;
+		height: 18px;
+		border: 2px solid rgba(255,255,255,0.3);
+		border-top-color: #fff;
 		border-radius: 50%;
-		animation: spin 1s linear infinite;
+		animation: spin 0.8s linear infinite;
 	}
 
-	.error-msg {
-		color: var(--apple-red);
-		font-size: 0.95rem;
-		text-align: center;
-		background: rgba(255, 59, 48, 0.1);
-		padding: 0.75rem;
-		border-radius: 10px;
+	@keyframes spin {
+		to { transform: rotate(360deg); }
 	}
 
-	.terms-text {
-		font-size: 0.8rem;
+	.terms {
+		font-size: 0.75rem;
 		text-align: center;
 		color: var(--muted);
-		line-height: 1.5;
+		line-height: 1.55;
+		margin: 0;
 	}
 
-	.terms-text a {
+	.terms :global(a) {
+		color: var(--apple-blue);
 		text-decoration: underline;
-		color: var(--fg);
 	}
 
-	.success-card {
+	.done {
 		text-align: center;
-		padding: 2rem 0;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
+		padding: 2rem 0 4rem;
 	}
 
-	.success-card h3 {
+	.done h2 {
+		margin-top: 1.25rem;
 		font-size: 1.5rem;
+		font-weight: 600;
 		color: var(--fg);
 	}
 
-	.success-card p {
+	.done p {
+		margin-top: 0.5rem;
 		color: var(--muted);
 		line-height: 1.5;
 	}
 
-	.mt-3 {
+	.link-btn {
 		margin-top: 1.5rem;
+		background: none;
+		border: none;
+		color: var(--apple-blue);
+		font-size: 1rem;
+		font-weight: 500;
+		cursor: pointer;
+		font-family: inherit;
+		padding: 0;
 	}
 
-	@media (max-width: 640px) {
-		.content-box {
-			border-radius: 0;
-			border: none;
-			box-shadow: none;
-			padding: 2rem 1.5rem;
-			background: transparent;
+	.link-btn:hover {
+		text-decoration: underline;
+	}
+
+	@media (max-width: 734px) {
+		.pg-header {
+			padding: 3rem 0 2rem;
+		}
+
+		.pg-body {
+			padding-top: 2rem;
 		}
 	}
 </style>

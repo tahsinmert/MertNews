@@ -52,4 +52,4 @@
 	<title>{$t('footer.cookies')} - MertNews</title>
 </svelte:head>
 
-<AppleInfoPage icon="cookie" titleKey="footer.cookies" subtitleKey="page.cookies.subtitle" {tocItems} {sections} />
+<AppleInfoPage titleKey="footer.cookies" subtitleKey="page.cookies.subtitle" {tocItems} {sections} />

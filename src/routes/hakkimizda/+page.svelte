@@ -46,4 +46,4 @@
 	<title>{$t('footer.about')} - MertNews</title>
 </svelte:head>
 
-<AppleInfoPage icon="about" titleKey="footer.about" subtitleKey="page.about.subtitle" {tocItems} {sections} />
+<AppleInfoPage titleKey="footer.about" subtitleKey="page.about.subtitle" {tocItems} {sections} />

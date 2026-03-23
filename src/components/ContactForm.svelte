@@ -5,7 +5,7 @@
 	let email = '';
 	let subject = 'general';
 	let message = '';
-	let status = 'idle'; // idle | success
+	let status = 'idle';
 
 	const subjects = [
 		{ value: 'general', key: 'page.contact.form.subject.general' },
@@ -17,32 +17,30 @@
 
 	function submit(e) {
 		e.preventDefault();
-		if (!name.trim() || !email.trim() || !message.trim()) {
-			return;
-		}
+		if (!name.trim() || !email.trim() || !message.trim()) return;
 		status = 'success';
 	}
 </script>
 
-<div class="form-card apple-glass">
-	<h2 class="form-title">{$t('page.contact.form.title')}</h2>
+<div class="cf">
+	<h2 class="cf-title">{$t('page.contact.form.title')}</h2>
 
 	{#if status === 'success'}
-		<p class="success" role="status">{$t('page.contact.form.success')}</p>
-		<button type="button" class="btn-reset" on:click={() => { status = 'idle'; name = ''; email = ''; message = ''; }}>
+		<p class="cf-done">{$t('page.contact.form.success')}</p>
+		<button type="button" class="cf-link" on:click={() => { status = 'idle'; name = ''; email = ''; message = ''; }}>
 			{$t('subscribe.btnReset')}
 		</button>
 	{:else}
-		<form class="form" on:submit={submit} novalidate>
-			<div class="field">
+		<form class="cf-form" on:submit={submit} novalidate>
+			<div class="cf-field">
 				<label for="c-name">{$t('page.contact.form.name')}</label>
 				<input id="c-name" type="text" bind:value={name} autocomplete="name" required />
 			</div>
-			<div class="field">
+			<div class="cf-field">
 				<label for="c-email">{$t('page.contact.form.email')}</label>
 				<input id="c-email" type="email" bind:value={email} autocomplete="email" required />
 			</div>
-			<div class="field">
+			<div class="cf-field">
 				<label for="c-subject">{$t('page.contact.form.subject')}</label>
 				<select id="c-subject" bind:value={subject}>
 					{#each subjects as s}
@@ -50,129 +48,120 @@
 					{/each}
 				</select>
 			</div>
-			<div class="field">
+			<div class="cf-field">
 				<label for="c-msg">{$t('page.contact.form.message')}</label>
-				<textarea id="c-msg" rows="6" bind:value={message} required></textarea>
+				<textarea id="c-msg" rows="5" bind:value={message} required></textarea>
 			</div>
-			<button type="submit" class="btn-submit">{$t('page.contact.form.submit')}</button>
+			<button type="submit" class="cf-submit">{$t('page.contact.form.submit')}</button>
 		</form>
 	{/if}
 </div>
 
 <style>
-	.form-card {
-		margin-top: 20px;
-		padding: 28px 24px;
-		border-radius: 20px;
-		border: 1px solid var(--glass-border);
+	.cf {
+		margin-top: 0;
+		padding: 2rem 0;
+		border-top: 1px solid var(--card-border);
 	}
 
-	.form-title {
-		font-size: 1.25rem;
-		font-weight: 700;
+	.cf-title {
+		font-size: 1.375rem;
+		font-weight: 600;
 		letter-spacing: -0.02em;
-		margin-bottom: 20px;
 		color: var(--fg);
+		margin: 0 0 1.25rem;
 	}
 
-	.form {
+	.cf-form {
 		display: flex;
 		flex-direction: column;
-		gap: 18px;
+		gap: 1.25rem;
 	}
 
-	.field label {
+	.cf-field label {
 		display: block;
-		font-size: 0.78rem;
+		font-size: 0.8125rem;
 		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-		color: var(--muted);
-		margin-bottom: 8px;
-	}
-
-	.field input,
-	.field select,
-	.field textarea {
-		width: 100%;
-		padding: 12px 14px;
-		border-radius: 12px;
-		border: 1px solid var(--card-border);
-		background: var(--bg);
 		color: var(--fg);
-		font-size: 0.95rem;
+		margin-bottom: 0.375rem;
+	}
+
+	.cf-field input,
+	.cf-field select,
+	.cf-field textarea {
+		width: 100%;
+		padding: 0.75rem 0.875rem;
+		border-radius: 10px;
+		border: 1.5px solid var(--card-border);
+		background: var(--apple-gray-100, #f5f5f7);
+		color: var(--fg);
+		font-size: 0.9375rem;
 		font-family: inherit;
-		transition: border-color 0.2s, box-shadow 0.2s;
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
 	}
 
-	.field input:focus,
-	.field select:focus,
-	.field textarea:focus {
+	:global([prefers-color-scheme='dark']) .cf-field input,
+	:global([prefers-color-scheme='dark']) .cf-field select,
+	:global([prefers-color-scheme='dark']) .cf-field textarea {
+		background: rgba(255, 255, 255, 0.06);
+	}
+
+	.cf-field input:focus,
+	.cf-field select:focus,
+	.cf-field textarea:focus {
 		outline: none;
-		border-color: rgba(0, 102, 204, 0.45);
-		box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+		border-color: var(--apple-blue);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--apple-blue) 18%, transparent);
 	}
 
-	:global([prefers-color-scheme='dark']) .field input:focus,
-	:global([prefers-color-scheme='dark']) .field select:focus,
-	:global([prefers-color-scheme='dark']) .field textarea:focus {
-		border-color: rgba(10, 132, 255, 0.5);
-		box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
-	}
-
-	.field textarea {
+	.cf-field textarea {
 		resize: vertical;
-		min-height: 140px;
+		min-height: 120px;
 	}
 
-	.btn-submit {
+	.cf-submit {
 		align-self: flex-start;
-		margin-top: 4px;
-		padding: 12px 28px;
+		padding: 0.75rem 1.75rem;
 		min-height: 44px;
-		border-radius: 980px;
+		border-radius: 10px;
 		border: none;
 		background: var(--apple-blue);
 		color: #fff;
 		font-size: 0.9375rem;
-		font-weight: 600;
+		font-weight: 500;
+		font-family: inherit;
 		cursor: pointer;
-		transition: background 0.2s;
+		transition: opacity 0.15s ease;
 	}
 
-	.btn-submit:hover {
-		background: var(--apple-blue-hover);
+	.cf-submit:active {
+		opacity: 0.78;
 	}
 
-	.success {
+	.cf-done {
 		font-size: 1rem;
 		color: var(--fg);
 		line-height: 1.6;
-		margin-bottom: 16px;
+		margin: 0 0 0.75rem;
 	}
 
-	.btn-reset {
-		padding: 10px 20px;
-		min-height: 44px;
-		border-radius: 980px;
-		border: 1px solid var(--card-border);
-		background: transparent;
-		color: var(--accent);
+	.cf-link {
+		background: none;
+		border: none;
+		color: var(--apple-blue);
 		font-size: 0.9375rem;
 		font-weight: 500;
 		cursor: pointer;
+		font-family: inherit;
+		padding: 0;
 	}
 
-	.btn-reset:hover {
-		color: var(--apple-blue-hover);
+	.cf-link:hover {
+		text-decoration: underline;
 	}
 
 	@media (max-width: 640px) {
-		.form-card {
-			padding: 20px 16px;
-		}
-
-		.btn-submit {
+		.cf-submit {
 			align-self: stretch;
 		}
 	}

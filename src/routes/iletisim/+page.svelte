@@ -28,6 +28,6 @@
 	<title>{$t('footer.contact')} - MertNews</title>
 </svelte:head>
 
-<AppleInfoPage icon="contact" titleKey="footer.contact" subtitleKey="page.contact.subtitle" tocItems={[]} {sections}>
+<AppleInfoPage titleKey="footer.contact" subtitleKey="page.contact.subtitle" tocItems={[]} {sections}>
 	<ContactForm />
 </AppleInfoPage>

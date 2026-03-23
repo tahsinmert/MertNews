@@ -54,7 +54,7 @@
 	<title>{$t('footer.sitemap')} - MertNews</title>
 </svelte:head>
 
-<AppleInfoPage icon="sitemap" titleKey="footer.sitemap" subtitleKey="page.sitemap.subtitle" tocItems={[]} {sections}>
+<AppleInfoPage titleKey="footer.sitemap" subtitleKey="page.sitemap.subtitle" tocItems={[]} {sections}>
 	<div class="sitemap">
 		{#each groups as group}
 			<section class="sitemap-group apple-glass">
