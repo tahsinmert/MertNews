@@ -217,7 +217,7 @@
 	}
 
 	.title {
-		font-size: 2.2rem;
+		font-size: clamp(1.75rem, 5vw, 2.2rem);
 		margin-bottom: 0.75rem;
 	}
 
@@ -291,7 +291,9 @@
 	}
 
 	.chip-text {
-		display: inline-block;
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
 		padding: 0.5rem 1rem;
 		background: var(--apple-gray-100);
 		color: var(--muted);
@@ -332,6 +334,10 @@
 		flex: 1;
 		text-align: center;
 		padding: 0.5rem 0;
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		cursor: pointer;
 		color: var(--muted);
 		font-size: 0.95rem;

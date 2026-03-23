@@ -464,10 +464,10 @@
 		background: none;
 		border: none;
 		cursor: pointer;
-		padding: 0.35rem 0.5rem;
-		border-radius: 6px;
+		padding: 0.6rem 0.75rem;
+		min-height: 44px;
+		border-radius: 8px;
 		transition: opacity 0.2s ease;
-		opacity: 1;
 	}
 
 	.fin__refresh:hover:not(:disabled) {
@@ -811,9 +811,18 @@
 	}
 
 	@media (max-width: 734px) {
+		.fin__hero {
+			padding: 2rem 0 1.5rem;
+		}
+
+		.fin__block {
+			padding: 2rem 0;
+		}
+
 		.fin__row {
 			grid-template-columns: 1fr;
 			gap: 0.75rem;
+			padding: 1rem 0;
 		}
 
 		.fin__chg {
@@ -823,6 +832,18 @@
 
 		.fin__row--gold .fin__gold-price {
 			text-align: left;
+		}
+
+		.fin__cards {
+			grid-template-columns: 1fr;
+		}
+
+		.fin__ecb-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		.fin__foot {
+			padding: 1.5rem 0 calc(2rem + env(safe-area-inset-bottom, 0px));
 		}
 	}
 </style>

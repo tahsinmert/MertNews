@@ -129,21 +129,19 @@
 		align-self: flex-start;
 		margin-top: 4px;
 		padding: 12px 28px;
+		min-height: 44px;
 		border-radius: 980px;
 		border: none;
 		background: var(--apple-blue);
 		color: #fff;
-		font-size: 0.9rem;
+		font-size: 0.9375rem;
 		font-weight: 600;
 		cursor: pointer;
-		transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-		box-shadow: 0 4px 16px rgba(0, 102, 204, 0.28);
+		transition: background 0.2s;
 	}
 
 	.btn-submit:hover {
 		background: var(--apple-blue-hover);
-		transform: translateY(-1px);
-		box-shadow: 0 6px 20px rgba(0, 102, 204, 0.35);
 	}
 
 	.success {
@@ -155,16 +153,27 @@
 
 	.btn-reset {
 		padding: 10px 20px;
+		min-height: 44px;
 		border-radius: 980px;
 		border: 1px solid var(--card-border);
 		background: transparent;
 		color: var(--accent);
-		font-size: 0.85rem;
+		font-size: 0.9375rem;
 		font-weight: 500;
 		cursor: pointer;
 	}
 
 	.btn-reset:hover {
-		opacity: 0.85;
+		color: var(--apple-blue-hover);
+	}
+
+	@media (max-width: 640px) {
+		.form-card {
+			padding: 20px 16px;
+		}
+
+		.btn-submit {
+			align-self: stretch;
+		}
 	}
 </style>

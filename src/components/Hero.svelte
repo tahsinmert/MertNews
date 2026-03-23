@@ -152,7 +152,8 @@
 		align-items: center;
 		justify-content: center;
 		min-width: 3.25rem;
-		padding: 0.7rem 1.35rem;
+		min-height: 44px;
+		padding: 0.75rem 1.5rem;
 		border-radius: 980px;
 		background: var(--apple-blue);
 		color: #fff;
@@ -166,8 +167,6 @@
 
 	.hero-btn-primary:hover {
 		background: var(--apple-blue-hover);
-		transform: scale(1.02);
-		opacity: 1;
 	}
 
 	/* global a:hover opacity — Apple CTA’lar tam opak kalsın */
@@ -177,6 +176,9 @@
 
 	.hero-btn-link {
 		font-size: 1.0625rem;
+		min-height: 44px;
+		display: inline-flex;
+		align-items: center;
 	}
 
 	@media (max-width: 734px) {

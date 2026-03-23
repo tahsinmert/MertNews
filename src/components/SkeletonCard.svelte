@@ -142,10 +142,10 @@
 
 	@media (max-width: 734px) {
 		.grid-sk {
-			min-height: 420px;
+			min-height: 360px;
 		}
 		.grid-sk-body {
-			padding: 1.5rem 1.25rem 2rem;
+			padding: 1.25rem 1rem 1.5rem;
 		}
 	}
 </style>

@@ -591,7 +591,8 @@
 		left: 0;
 		right: 0;
 		z-index: 9998;
-		height: var(--nav-height);
+		height: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
+		padding-top: env(safe-area-inset-top, 0px);
 		overflow: visible;
 		/* apple.com globalnav – hafif cam */
 		background: rgba(251, 251, 253, 0.82);
@@ -616,7 +617,7 @@
 	/* Mega: arka plan bulanık + beyaz panel (apple.com Store menü) */
 	.nav-mega-layer {
 		position: fixed;
-		top: var(--nav-height);
+		top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		left: 0;
 		right: 0;
 		bottom: 0;
@@ -630,7 +631,7 @@
 
 	.nav-mega-backdrop {
 		position: fixed;
-		top: var(--nav-height);
+		top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		left: 0;
 		right: 0;
 		bottom: 0;
@@ -807,7 +808,7 @@
 		position: fixed;
 		left: 0;
 		right: 0;
-		top: var(--nav-height);
+		top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		z-index: 2;
 		max-height: min(72vh, 580px);
 		overflow-y: auto;
@@ -1050,8 +1051,11 @@
 	.menu-toggle {
 		display: none;
 		align-items: center;
+		justify-content: center;
 		gap: 0.35rem;
-		padding: 6px 8px;
+		min-width: 44px;
+		min-height: 44px;
+		padding: 8px;
 		border: none;
 		background: transparent;
 		color: var(--muted);
@@ -1094,8 +1098,11 @@
 	.icon-btn {
 		display: inline-flex;
 		align-items: center;
+		justify-content: center;
 		gap: 4px;
-		padding: 6px 8px;
+		min-width: 44px;
+		min-height: 44px;
+		padding: 8px;
 		border: none;
 		background: transparent;
 		color: var(--muted);
@@ -1138,7 +1145,7 @@
 	.mobile-scrim {
 		position: fixed;
 		inset: 0;
-		top: var(--nav-height);
+		top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		z-index: 9995;
 		background: rgba(0, 0, 0, 0.28);
 		border: none;
@@ -1150,7 +1157,7 @@
 		position: fixed;
 		left: 0;
 		right: 0;
-		top: var(--nav-height);
+		top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		bottom: 0;
 		z-index: 9996;
 		background: var(--bg);

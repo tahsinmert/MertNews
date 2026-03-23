@@ -153,8 +153,8 @@
 	}
 
 	.tool-btn {
-		width: 34px;
-		height: 34px;
+		width: 44px;
+		height: 44px;
 		border-radius: 50%;
 		border: none;
 		display: flex;
@@ -172,8 +172,6 @@
 
 	.tool-btn:hover {
 		background: rgba(0, 0, 0, 0.1);
-		transform: scale(1.04);
-		opacity: 1;
 	}
 
 	:global([prefers-color-scheme='dark']) .tool-btn {
@@ -244,9 +242,11 @@
 
 		.modal-sheet {
 			max-width: 100%;
+			height: 92dvh;
 			height: 92vh;
 			max-height: none;
 			border-radius: 18px 18px 0 0;
+			padding-bottom: env(safe-area-inset-bottom, 0px);
 		}
 	}
 </style>

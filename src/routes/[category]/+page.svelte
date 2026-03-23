@@ -105,7 +105,7 @@
 		padding-top: var(--nav-height);
 	}
 	.category-header {
-		padding: calc(var(--nav-height) + 3.5rem) 0 3rem;
+		padding: 3.5rem 0 2.5rem;
 		text-align: center;
 		background: var(--bg);
 		transition: background-color 0.3s ease;
@@ -118,7 +118,7 @@
 		color: var(--fg);
 	}
 	.header-subtitle {
-		font-size: 1.5rem;
+		font-size: clamp(1.0625rem, 3vw, 1.5rem);
 		color: var(--muted);
 		font-weight: 500;
 		max-width: 700px;

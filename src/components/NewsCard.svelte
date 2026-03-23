@@ -280,13 +280,20 @@
 
 	@media (max-width: 734px) {
 		.grid-tile {
-			min-height: 420px;
+			min-height: 360px;
 		}
 		.grid-tile-body {
-			padding: 1.5rem 1.25rem 2rem;
+			padding: 1.25rem 1rem 1.5rem;
 		}
 		.grid-tile-title {
-			font-size: 1.5rem;
+			font-size: 1.35rem;
+		}
+		.grid-tile-actions {
+			gap: 0.5rem;
+		}
+		.grid-pill {
+			font-size: 0.9375rem;
+			padding: 0.5rem 1.25rem;
 		}
 	}
 
@@ -408,6 +415,9 @@
 	.tile-cta {
 		margin-top: auto;
 		padding-top: 0.85rem;
+		min-height: 44px;
+		display: inline-flex;
+		align-items: center;
 	}
 
 	.tile-chevron {

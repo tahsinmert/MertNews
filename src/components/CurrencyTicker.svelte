@@ -217,7 +217,7 @@
 	}
 
 	.label {
-		font-size: 0.6rem;
+		font-size: 0.65rem;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
@@ -285,7 +285,7 @@
 	}
 
 	.change {
-		font-size: 0.65rem;
+		font-size: 0.7rem;
 		font-weight: 700;
 	}
 
@@ -298,11 +298,16 @@
 
 	@media (max-width: 600px) {
 		.ticker-bar {
-			width: calc(100% - 20px);
-			top: calc(var(--nav-height) + 4px);
+			width: calc(100% - 16px);
+			top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 4px);
+			height: 30px;
+			padding: 0 10px;
 		}
 		.animate-marquee {
 			animation-duration: 40s;
+		}
+		.live-indicator {
+			padding: 3px 8px;
 		}
 	}
 

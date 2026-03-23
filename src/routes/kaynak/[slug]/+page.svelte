@@ -268,9 +268,10 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+		min-height: 44px;
 		padding: 0.55rem 1.1rem;
 		border-radius: 980px;
-		font-size: 0.8125rem;
+		font-size: 0.875rem;
 		font-weight: 600;
 		text-decoration: none;
 		transition:
@@ -322,9 +323,12 @@
 	}
 
 	.sib-chip {
-		padding: 0.4rem 0.85rem;
+		padding: 0.55rem 0.85rem;
+		min-height: 44px;
+		display: inline-flex;
+		align-items: center;
 		border-radius: 980px;
-		font-size: 0.8125rem;
+		font-size: 0.875rem;
 		font-weight: 500;
 		text-decoration: none;
 		color: var(--fg);

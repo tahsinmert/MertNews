@@ -132,9 +132,10 @@
 		display: inline-flex;
 		align-items: center;
 		color: var(--muted);
-		font-size: 0.75rem;
+		font-size: 0.8125rem;
 		letter-spacing: -0.01em;
-		padding: 2px 0;
+		padding: 6px 0;
+		min-height: 44px;
 		transition: color 0.2s ease;
 	}
 
@@ -179,6 +180,7 @@
 	}
 
 	.footer-legal-link {
+		position: relative;
 		padding-right: 0.75rem;
 	}
 
@@ -213,12 +215,16 @@
 
 	@media (max-width: 520px) {
 		.footer {
-			padding: 3.25rem 0 1.75rem;
+			padding: 1.5rem 0 calc(1.5rem + env(safe-area-inset-bottom, 0px));
 		}
 
 		.footer-nav {
 			grid-template-columns: 1fr;
-			gap: 24px;
+			gap: 16px;
+		}
+
+		.footer-col {
+			gap: 0;
 		}
 	}
 </style>

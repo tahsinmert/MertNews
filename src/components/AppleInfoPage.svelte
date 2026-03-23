@@ -374,9 +374,12 @@
 	.toc-pill {
 		flex: 0 0 auto;
 		scroll-snap-align: start;
-		padding: 8px 16px;
+		padding: 10px 16px;
+		min-height: 44px;
+		display: inline-flex;
+		align-items: center;
 		border-radius: 980px;
-		font-size: 0.82rem;
+		font-size: 0.875rem;
 		font-weight: 500;
 		color: var(--fg);
 		background: rgba(0, 0, 0, 0.04);
