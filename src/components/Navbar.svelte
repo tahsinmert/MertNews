@@ -5,14 +5,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import SearchOverlay from './SearchOverlay.svelte';
 
-	/**
-	 * @type {Array<{
-	 *   path: string;
-	 *   labelKey: string;
-	 *   internal: string;
-	 *   sources: Array<{ name: string; slug: string }>;
-	 * }>}
-	 */
+	/** @type {Array<{ path: string; labelKey: string; internal: string; sources: Array<{ name: string; slug: string }>; }>} */
 	export let feedNav = [];
 
 	let isSearchOpen = false;
@@ -22,15 +15,28 @@
 	$: activeSlugs = $page.url.searchParams.getAll('kaynak');
 	$: kaynakSlug = /^\/kaynak\/([^/]+)$/.exec(pathname)?.[1] ?? null;
 
+	/* ── scroll-aware hide/show (iPhone-style) ── */
+	const SCROLL_DELTA = 12;
+	const TOP_ZONE = 60;
+	let lastScrollY = 0;
+	let navHidden = false;
+
+	function onScroll() {
+		if (mobileMenuOpen || isSearchOpen) return;
+		const y = window.scrollY;
+		const delta = y - lastScrollY;
+		lastScrollY = y;
+		if (y < TOP_ZONE) { navHidden = false; return; }
+		if (delta > SCROLL_DELTA) navHidden = true;
+		else if (delta < -SCROLL_DELTA) navHidden = false;
+	}
+
 	function toggleSearch() {
 		isSearchOpen = !isSearchOpen;
 		if (typeof document !== 'undefined') {
-			if (isSearchOpen) {
-				document.body.style.overflow = 'hidden';
-			} else {
-				document.body.style.overflow = '';
-			}
+			document.body.style.overflow = isSearchOpen ? 'hidden' : '';
 		}
+		if (isSearchOpen) navHidden = false;
 	}
 
 	function toggleMobileMenu() {
@@ -39,6 +45,7 @@
 		if (typeof document !== 'undefined') {
 			document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
 		}
+		if (mobileMenuOpen) navHidden = false;
 	}
 
 	function closeMobileMenu() {
@@ -50,10 +57,7 @@
 
 	function handleKeydown(e) {
 		if (e.key === 'Escape') {
-			if (openMega) {
-				openMega = null;
-				return;
-			}
+			if (openMega) { openMega = null; return; }
 			closeMobileMenu();
 			if (isSearchOpen) toggleSearch();
 		}
@@ -68,80 +72,54 @@
 		}
 	}
 
-	/**
-	 * @param {string} slug
-	 */
-	function sourcePageHref(slug) {
-		return `/kaynak/${slug}`;
-	}
-
-	/**
-	 * @param {string} slug
-	 */
-	function isSourceActive(slug) {
-		return kaynakSlug === slug || activeSlugs.includes(slug);
-	}
-
-	/**
-	 * @param {{ path: string; sources?: Array<{ slug: string }> }} col
-	 */
+	/** @param {string} slug */
+	function sourcePageHref(slug) { return `/kaynak/${slug}`; }
+	/** @param {string} slug */
+	function isSourceActive(slug) { return kaynakSlug === slug || activeSlugs.includes(slug); }
+	/** @param {{ path: string; sources?: Array<{ slug: string }> }} col */
 	function isCategoryNavActive(col) {
 		if (pathname === col.path) return true;
 		if (!kaynakSlug || !col.sources?.length) return false;
 		return col.sources.some((s) => s.slug === kaynakSlug);
 	}
-
-	/**
-	 * @param {{ sources?: Array<{ slug: string }> }} col
-	 */
+	/** @param {{ sources?: Array<{ slug: string }> }} col */
 	function isViewingSourceInColumn(col) {
 		return !!(kaynakSlug && col.sources?.some((s) => s.slug === kaynakSlug));
 	}
 
-	/**
-	 * Mega paneller fixed + tam genişlikte; .desktop-nav içindeki overflow/mask bunları kesiyordu.
-	 * Paneller nav dışı katmanda, açık state fare ile (köprü + gecikme).
-	 */
 	/** @type {string | null} */
 	let openMega = null;
 	let megaCloseTimer = 0;
 
 	/** @param {string} id */
 	function megaEnter(id) {
-		if (typeof window !== 'undefined') {
-			window.clearTimeout(megaCloseTimer);
-		}
+		if (typeof window !== 'undefined') window.clearTimeout(megaCloseTimer);
 		openMega = id;
 	}
-
 	function megaLeave() {
 		if (typeof window === 'undefined') return;
-		megaCloseTimer = window.setTimeout(() => {
-			openMega = null;
-		}, 200);
+		megaCloseTimer = window.setTimeout(() => { openMega = null; }, 200);
 	}
 
 	onDestroy(() => {
-		if (typeof window !== 'undefined') {
-			window.clearTimeout(megaCloseTimer);
-		}
+		if (typeof window !== 'undefined') window.clearTimeout(megaCloseTimer);
 	});
 
 	onMount(() => {
 		if (typeof document !== 'undefined') {
 			const cookies = document.cookie.split('; ');
 			const localeCookie = cookies.find((c) => c.startsWith('locale='));
-			if (localeCookie) {
-				locale.set(localeCookie.split('=')[1]);
-			}
+			if (localeCookie) locale.set(localeCookie.split('=')[1]);
 		}
+		lastScrollY = window.scrollY;
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
 	});
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
 
-<!-- apple.com.tr tarzı: tam genişlik mega menü + köprü alanı -->
-<div class="nav-shell">
+<div class="nav-shell" class:nav-shell--hidden={navHidden}>
 	<nav class="globalnav" aria-label="Global">
 		<div class="globalnav-content container">
 			<a href="/" class="logo" on:click={closeMobileMenu}>
@@ -215,8 +193,7 @@
 					{:else}
 						<span class="menu-toggle-text">{$t('nav.openMenu')}</span>
 					{/if}
-					<span class="menu-burger" aria-hidden="true">
-						<span></span>
+					<span class="menu-burger" class:menu-burger--open={mobileMenuOpen} aria-hidden="true">
 						<span></span>
 						<span></span>
 					</span>
@@ -538,49 +515,50 @@
 		</div>
 	</div>
 
-	{#if mobileMenuOpen}
-		<div
-			id="mobile-nav-drawer"
-			class="mobile-drawer"
-			role="dialog"
-			aria-modal="true"
-			aria-label="{$t('nav.openMenu')}"
-		>
-			<div class="mobile-drawer-scroll">
-				<a href="/" class="mobile-home" on:click={closeMobileMenu}>{$t('nav.home')}</a>
-				<a href="/kaynak" class="mobile-home mobile-sources" on:click={closeMobileMenu}
-					>{$t('nav.allSources')}</a
-				>
-
-				{#each feedNav as col}
-					<section class="mobile-section">
-						<div class="mobile-section-head">
-							<a href={col.path} class="mobile-cat-title" on:click={closeMobileMenu}
-								>{$t(col.labelKey)}</a>
-							{#if col.sources?.length}
-								<p class="mobile-section-label">{$t('nav.sourcesFor')}</p>
-								<div class="mobile-source-chips">
-									<a href={col.path} class="chip" on:click={closeMobileMenu}>{$t('nav.allStories')}</a>
-									{#each col.sources as s}
-										<a
-											href={sourcePageHref(s.slug)}
-											class="chip"
-											class:active={isSourceActive(s.slug)}
-											on:click={closeMobileMenu}>{s.name}</a>
-									{/each}
-								</div>
-							{/if}
-						</div>
-					</section>
-				{/each}
-
-				<a href="/finans" class="mobile-home finans" on:click={closeMobileMenu}>{$t('nav.finance')}</a>
-				<a href="/abone" class="mobile-cta" on:click={closeMobileMenu}>{$t('nav.subscribe')}</a>
-			</div>
-		</div>
-		<button type="button" class="mobile-scrim" aria-label={$t('nav.closeMenu')} on:click={closeMobileMenu} />
-	{/if}
 </div>
+
+{#if mobileMenuOpen}
+	<div
+		id="mobile-nav-drawer"
+		class="mobile-drawer"
+		role="dialog"
+		aria-modal="true"
+		aria-label="{$t('nav.openMenu')}"
+	>
+		<div class="mobile-drawer-scroll">
+			<a href="/" class="mobile-home" on:click={closeMobileMenu}>{$t('nav.home')}</a>
+			<a href="/kaynak" class="mobile-home mobile-sources" on:click={closeMobileMenu}
+				>{$t('nav.allSources')}</a
+			>
+
+			{#each feedNav as col}
+				<section class="mobile-section">
+					<div class="mobile-section-head">
+						<a href={col.path} class="mobile-cat-title" on:click={closeMobileMenu}
+							>{$t(col.labelKey)}</a>
+						{#if col.sources?.length}
+							<p class="mobile-section-label">{$t('nav.sourcesFor')}</p>
+							<div class="mobile-source-chips">
+								<a href={col.path} class="chip" on:click={closeMobileMenu}>{$t('nav.allStories')}</a>
+								{#each col.sources as s}
+									<a
+										href={sourcePageHref(s.slug)}
+										class="chip"
+										class:active={isSourceActive(s.slug)}
+										on:click={closeMobileMenu}>{s.name}</a>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				</section>
+			{/each}
+
+			<a href="/finans" class="mobile-home finans" on:click={closeMobileMenu}>{$t('nav.finance')}</a>
+			<a href="/abone" class="mobile-cta" on:click={closeMobileMenu}>{$t('nav.subscribe')}</a>
+		</div>
+	</div>
+	<button type="button" class="mobile-scrim" aria-label={$t('nav.closeMenu')} on:click={closeMobileMenu} />
+{/if}
 
 <SearchOverlay isOpen={isSearchOpen} close={toggleSearch} />
 
@@ -594,11 +572,17 @@
 		height: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		padding-top: env(safe-area-inset-top, 0px);
 		overflow: visible;
-		/* apple.com globalnav – hafif cam */
 		background: rgba(251, 251, 253, 0.82);
 		backdrop-filter: saturate(180%) blur(20px);
 		-webkit-backdrop-filter: saturate(180%) blur(20px);
 		border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+		transform: translateY(0);
+		transition: transform 0.32s cubic-bezier(0.28, 0.11, 0.32, 1);
+		will-change: transform;
+	}
+
+	.nav-shell--hidden {
+		transform: translateY(-100%);
 	}
 
 	:global([prefers-color-scheme='dark']) .nav-shell {
@@ -1084,15 +1068,41 @@
 	.menu-burger {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		justify-content: center;
 		width: 18px;
+		height: 18px;
+		position: relative;
 	}
 
 	.menu-burger span {
 		display: block;
-		height: 2px;
+		position: absolute;
+		left: 0;
+		right: 0;
+		height: 1.5px;
 		background: currentColor;
 		border-radius: 1px;
+		transition: transform 0.28s cubic-bezier(0.28, 0.11, 0.32, 1),
+					opacity 0.2s ease;
+	}
+
+	.menu-burger span:first-child {
+		top: 5px;
+	}
+
+	.menu-burger span:last-child {
+		bottom: 5px;
+	}
+
+	.menu-burger--open span:first-child {
+		top: 50%;
+		transform: translateY(-50%) rotate(45deg);
+	}
+
+	.menu-burger--open span:last-child {
+		bottom: auto;
+		top: 50%;
+		transform: translateY(-50%) rotate(-45deg);
 	}
 
 	.icon-btn {
@@ -1145,9 +1155,8 @@
 	.mobile-scrim {
 		position: fixed;
 		inset: 0;
-		top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		z-index: 9995;
-		background: rgba(0, 0, 0, 0.28);
+		background: transparent;
 		border: none;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
@@ -1160,16 +1169,18 @@
 		top: calc(var(--nav-height) + env(safe-area-inset-top, 0px));
 		bottom: 0;
 		z-index: 9996;
-		background: var(--bg);
-		border-bottom: 1px solid var(--apple-nav-border);
-		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-		animation: drawer-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+		background: #ffffff;
+		animation: drawer-in 0.34s cubic-bezier(0.28, 0.11, 0.32, 1) forwards;
+	}
+
+	:global([prefers-color-scheme='dark']) .mobile-drawer {
+		background: #1d1d1f;
 	}
 
 	@keyframes drawer-in {
 		from {
 			opacity: 0;
-			transform: translateY(-8px);
+			transform: translateY(-12px);
 		}
 		to {
 			opacity: 1;
@@ -1180,22 +1191,26 @@
 	.mobile-drawer-scroll {
 		height: 100%;
 		overflow-y: auto;
-		padding: 1rem 1.25rem 2.5rem;
+		padding: 1.25rem max(1.25rem, env(safe-area-inset-left)) calc(2rem + env(safe-area-inset-bottom, 0px)) max(1.25rem, env(safe-area-inset-right));
 		-webkit-overflow-scrolling: touch;
+		overscroll-behavior-y: contain;
 	}
 
 	.mobile-home {
-		display: block;
+		display: flex;
+		align-items: center;
 		font-size: 1.25rem;
 		font-weight: 600;
 		color: var(--fg);
-		margin-bottom: 1.25rem;
+		min-height: 44px;
+		margin-bottom: 0.5rem;
 		letter-spacing: -0.03em;
 	}
 
 	.mobile-home.finans {
-		margin-top: 0.5rem;
+		margin-top: 0.25rem;
 		font-size: 1.05rem;
+		font-weight: 500;
 	}
 
 	.mobile-home.mobile-sources {
@@ -1208,10 +1223,23 @@
 
 	.mobile-cta {
 		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		margin-top: 1.5rem;
-		font-size: 0.95rem;
+		font-size: 0.9375rem;
 		font-weight: 500;
-		color: var(--apple-blue);
+		color: #fff;
+		background: var(--apple-blue);
+		border-radius: 980px;
+		padding: 0 1.5rem;
+		min-height: 44px;
+		width: 100%;
+		letter-spacing: -0.01em;
+		transition: opacity 0.2s ease;
+	}
+
+	.mobile-cta:active {
+		opacity: 0.72;
 	}
 
 	.mobile-section {
@@ -1221,6 +1249,9 @@
 	}
 
 	.mobile-cat-title {
+		display: flex;
+		align-items: center;
+		min-height: 44px;
 		font-size: 1.05rem;
 		font-weight: 600;
 		color: var(--fg);
@@ -1243,8 +1274,11 @@
 	}
 
 	.chip {
-		font-size: 0.78rem;
-		padding: 0.4rem 0.65rem;
+		font-size: 0.8125rem;
+		padding: 0.5rem 0.75rem;
+		min-height: 36px;
+		display: inline-flex;
+		align-items: center;
 		border-radius: 999px;
 		background: color-mix(in srgb, var(--fg) 6%, transparent);
 		color: var(--fg);
@@ -1275,6 +1309,16 @@
 		}
 
 		.menu-toggle-text {
+			display: none;
+		}
+
+		.nav-cta {
+			display: none;
+		}
+	}
+
+	@media (max-width: 374px) {
+		.lang-label {
 			display: none;
 		}
 	}
