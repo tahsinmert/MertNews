@@ -34,7 +34,7 @@
 {/if}
 
 <div class="app-layout">
-	<Navbar feedNav={data.feedNav ?? []} />
+	<Navbar feedNav={data.feedNav ?? []} weatherData={data.weatherData} />
 	<CurrencyTicker data={data.currencyData} />
 	<main class="main-fill">
 		<slot />

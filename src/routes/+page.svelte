@@ -3,6 +3,7 @@
 	import NewsCard from '../components/NewsCard.svelte';
 	import SkeletonCard from '../components/SkeletonCard.svelte';
 	import CurrencyGrid from '../components/CurrencyGrid.svelte';
+	import WeatherWidget from '../components/WeatherWidget.svelte';
 	import AppleHorizontalScroll from '../components/AppleHorizontalScroll.svelte';
 	import { page } from '$app/stores';
 	import { t } from '$lib/i18n';
@@ -131,6 +132,12 @@
 		{/if}
 	</div>
 </main>
+
+<div class="widgets-strip apple-gallery-strip">
+	<div class="apple-gallery-strip-inner container">
+		<WeatherWidget data={data.weatherData} />
+	</div>
+</div>
 
 <CurrencyGrid data={data.currencyData} />
 
@@ -337,5 +344,9 @@
 		.filter-bar {
 			justify-content: flex-start;
 		}
+	}
+
+	.widgets-strip {
+		padding: 4rem 0 3rem;
 	}
 </style>

@@ -8,6 +8,32 @@
 	/** @type {Array<{ path: string; labelKey: string; internal: string; sources: Array<{ name: string; slug: string }>; }>} */
 	export let feedNav = [];
 
+	/** @type {any[] | null} */
+	export let weatherData = null;
+
+	let weatherCity = 0;
+	let weatherOpen = false;
+	let weatherCloseTimer = 0;
+
+	$: weather = weatherData?.[weatherCity] ?? null;
+
+	function weatherEnter() {
+		if (typeof window !== 'undefined') window.clearTimeout(weatherCloseTimer);
+		weatherOpen = true;
+	}
+	function weatherLeave() {
+		if (typeof window === 'undefined') return;
+		weatherCloseTimer = window.setTimeout(() => { weatherOpen = false; }, 250);
+	}
+
+	async function refreshNavWeather() {
+		try {
+			const res = await fetch('/api/weather');
+			const data = await res.json();
+			if (data?.length) weatherData = data;
+		} catch { /* silent */ }
+	}
+
 	let isSearchOpen = false;
 	let mobileMenuOpen = false;
 
@@ -102,7 +128,10 @@
 	}
 
 	onDestroy(() => {
-		if (typeof window !== 'undefined') window.clearTimeout(megaCloseTimer);
+		if (typeof window !== 'undefined') {
+			window.clearTimeout(megaCloseTimer);
+			window.clearTimeout(weatherCloseTimer);
+		}
 	});
 
 	onMount(() => {
@@ -113,7 +142,12 @@
 		}
 		lastScrollY = window.scrollY;
 		window.addEventListener('scroll', onScroll, { passive: true });
-		return () => window.removeEventListener('scroll', onScroll);
+		if (!weatherData) refreshNavWeather();
+		const weatherInterval = setInterval(refreshNavWeather, 10 * 60_000);
+		return () => {
+			window.removeEventListener('scroll', onScroll);
+			clearInterval(weatherInterval);
+		};
 	});
 </script>
 
@@ -180,26 +214,118 @@
 				</div>
 			</div>
 
-			<div class="nav-actions">
-				<button
-					type="button"
-					class="menu-toggle"
-					aria-expanded={mobileMenuOpen}
-					aria-controls="mobile-nav-drawer"
-					on:click={toggleMobileMenu}
-				>
-					{#if mobileMenuOpen}
-						<span class="menu-toggle-text">{$t('nav.closeMenu')}</span>
-					{:else}
-						<span class="menu-toggle-text">{$t('nav.openMenu')}</span>
-					{/if}
-					<span class="menu-burger" class:menu-burger--open={mobileMenuOpen} aria-hidden="true">
-						<span></span>
-						<span></span>
-					</span>
-				</button>
+		<div class="nav-actions">
+			<button
+				type="button"
+				class="menu-toggle"
+				aria-expanded={mobileMenuOpen}
+				aria-controls="mobile-nav-drawer"
+				on:click={toggleMobileMenu}
+			>
+				{#if mobileMenuOpen}
+					<span class="menu-toggle-text">{$t('nav.closeMenu')}</span>
+				{:else}
+					<span class="menu-toggle-text">{$t('nav.openMenu')}</span>
+				{/if}
+				<span class="menu-burger" class:menu-burger--open={mobileMenuOpen} aria-hidden="true">
+					<span></span>
+					<span></span>
+				</span>
+			</button>
 
-				<button class="icon-btn" type="button" on:click={toggleLocale} title="Dil / Language">
+			{#if weather}
+				<div
+					class="nav-weather-wrap"
+					on:mouseenter={weatherEnter}
+					on:mouseleave={weatherLeave}
+					role="presentation"
+				>
+					<button
+						class="nav-weather-pill"
+						type="button"
+						aria-expanded={weatherOpen}
+						on:click={() => weatherOpen = !weatherOpen}
+					>
+						<span class="nav-weather-icon">{weather.current.icon}</span>
+						<span class="nav-weather-temp">{weather.current.temp}°</span>
+					</button>
+
+					{#if weatherOpen}
+						<div
+							class="nav-weather-dropdown"
+							on:mouseenter={weatherEnter}
+							on:mouseleave={weatherLeave}
+						>
+							<div class="nw-dropdown-arrow"></div>
+							<div class="nw-card" class:nw-card--animate={weatherOpen}>
+								<div class="nw-city-selector nw-stagger nw-stagger-1">
+									{#each weatherData as w, i}
+										<button
+											class="nw-city-btn"
+											class:active={weatherCity === i}
+											on:click={() => weatherCity = i}
+										>{w.city}</button>
+									{/each}
+								</div>
+
+								{#key weatherCity}
+									<div class="nw-main nw-stagger nw-stagger-2">
+										<div class="nw-left">
+											<span class="nw-city-name nw-text-reveal">{weather.city}</span>
+											<span class="nw-condition nw-text-reveal" style="animation-delay: 0.08s">{weather.current.description}</span>
+										</div>
+										<div class="nw-right">
+											<span class="nw-big-icon nw-icon-pop">{weather.current.icon}</span>
+											<span class="nw-big-temp nw-temp-reveal">{weather.current.temp}°</span>
+										</div>
+									</div>
+
+									<div class="nw-details nw-stagger nw-stagger-3">
+										<div class="nw-detail nw-detail-anim" style="animation-delay: 0.12s">
+											<span class="nw-detail-label">{$locale === 'tr' ? 'Hissedilen' : 'Feels'}</span>
+											<span class="nw-detail-val">{weather.current.feelsLike}°</span>
+										</div>
+										<div class="nw-detail-sep"></div>
+										<div class="nw-detail nw-detail-anim" style="animation-delay: 0.17s">
+											<span class="nw-detail-label">{$locale === 'tr' ? 'Nem' : 'Humid.'}</span>
+											<span class="nw-detail-val">{weather.current.humidity}%</span>
+										</div>
+										<div class="nw-detail-sep"></div>
+										<div class="nw-detail nw-detail-anim" style="animation-delay: 0.22s">
+											<span class="nw-detail-label">{$locale === 'tr' ? 'Rüzgar' : 'Wind'}</span>
+											<span class="nw-detail-val">{weather.current.windSpeed}<small>km/h</small></span>
+										</div>
+									</div>
+
+									{#if weather.forecast?.length}
+										<div class="nw-forecast nw-stagger nw-stagger-4">
+											{#each weather.forecast.slice(0, 5) as day, fi}
+												<div class="nw-fday nw-fday-anim" style="animation-delay: {0.18 + fi * 0.05}s">
+													<span class="nw-fday-name">{(() => {
+														const d = new Date(day.date + 'T12:00:00');
+														const today = new Date().toISOString().split('T')[0];
+														if (day.date === today) return $locale === 'tr' ? 'Bugün' : 'Today';
+														const names_tr = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+														const names_en = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+														return ($locale === 'tr' ? names_tr : names_en)[d.getDay()];
+													})()}</span>
+													<span class="nw-fday-icon">{day.icon}</span>
+													<span class="nw-fday-temps">
+														<span class="nw-fday-hi">{day.maxTemp}°</span>
+														<span class="nw-fday-lo">{day.minTemp}°</span>
+													</span>
+												</div>
+											{/each}
+										</div>
+									{/if}
+								{/key}
+							</div>
+						</div>
+					{/if}
+				</div>
+			{/if}
+
+			<button class="icon-btn" type="button" on:click={toggleLocale} title="Dil / Language">
 					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
 						<path
 							d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
@@ -1320,6 +1446,483 @@
 	@media (max-width: 374px) {
 		.lang-label {
 			display: none;
+		}
+	}
+
+	/* ——— Nav Weather Pill + Dropdown ——— */
+	.nav-weather-wrap {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.nav-weather-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 3px;
+		padding: 4px 8px;
+		border: none;
+		background: rgba(0, 0, 0, 0.04);
+		border-radius: 980px;
+		cursor: pointer;
+		transition: background 0.25s cubic-bezier(0.25, 0.1, 0.25, 1),
+					transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+		font-family: var(--font-text);
+		color: var(--fg);
+		line-height: 1;
+	}
+
+	:global([prefers-color-scheme='dark']) .nav-weather-pill {
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	.nav-weather-pill:hover {
+		background: rgba(0, 0, 0, 0.08);
+		transform: scale(1.04);
+	}
+
+	:global([prefers-color-scheme='dark']) .nav-weather-pill:hover {
+		background: rgba(255, 255, 255, 0.14);
+	}
+
+	.nav-weather-pill:active {
+		transform: scale(0.96);
+	}
+
+	.nav-weather-icon {
+		font-size: 0.875rem;
+		line-height: 1;
+	}
+
+	.nav-weather-temp {
+		font-size: 0.6875rem;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: -0.02em;
+	}
+
+	/* ——— Dropdown Container ——— */
+	.nav-weather-dropdown {
+		position: absolute;
+		top: calc(100% + 10px);
+		right: -20px;
+		width: 340px;
+		z-index: 10002;
+		animation: nw-dropdown-in 0.38s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+		transform-origin: top right;
+	}
+
+	@keyframes nw-dropdown-in {
+		from {
+			opacity: 0;
+			transform: translateY(-8px) scale(0.94);
+			filter: blur(4px);
+		}
+		40% {
+			opacity: 1;
+			filter: blur(0);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+			filter: blur(0);
+		}
+	}
+
+	.nw-dropdown-arrow {
+		position: absolute;
+		top: -5px;
+		right: 32px;
+		width: 10px;
+		height: 10px;
+		background: var(--apple-mega-panel-light, #fbfbfd);
+		border-left: 1px solid var(--apple-mega-border-light, #d2d2d7);
+		border-top: 1px solid var(--apple-mega-border-light, #d2d2d7);
+		transform: rotate(45deg);
+		z-index: 1;
+		animation: nw-arrow-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) 0.06s backwards;
+	}
+
+	@keyframes nw-arrow-in {
+		from { opacity: 0; transform: rotate(45deg) scale(0.5); }
+		to   { opacity: 1; transform: rotate(45deg) scale(1); }
+	}
+
+	:global([prefers-color-scheme='dark']) .nw-dropdown-arrow {
+		background: var(--apple-mega-panel-dark, #161617);
+		border-left-color: var(--apple-mega-border-dark);
+		border-top-color: var(--apple-mega-border-dark);
+	}
+
+	/* ——— Card ——— */
+	.nw-card {
+		background: var(--apple-mega-panel-light, #fbfbfd);
+		border: 1px solid var(--apple-mega-border-light, #d2d2d7);
+		border-radius: 16px;
+		padding: 16px;
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		position: relative;
+		z-index: 2;
+		overflow: hidden;
+	}
+
+	:global([prefers-color-scheme='dark']) .nw-card {
+		background: var(--apple-mega-panel-dark, #161617);
+		border-color: var(--apple-mega-border-dark, rgba(255, 255, 255, 0.12));
+		box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+	}
+
+	/* ——— Staggered reveal animations (Apple-style cascade) ——— */
+	.nw-stagger {
+		animation: nw-stagger-reveal 0.4s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+	}
+	.nw-stagger-1 { animation-delay: 0.04s; }
+	.nw-stagger-2 { animation-delay: 0.08s; }
+	.nw-stagger-3 { animation-delay: 0.14s; }
+	.nw-stagger-4 { animation-delay: 0.20s; }
+
+	@keyframes nw-stagger-reveal {
+		from {
+			opacity: 0;
+			transform: translateY(12px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* City name text reveal */
+	.nw-text-reveal {
+		animation: nw-text-slide 0.35s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+	}
+
+	@keyframes nw-text-slide {
+		from {
+			opacity: 0;
+			transform: translateX(-8px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	/* Icon pop-in (Apple bounce) */
+	.nw-icon-pop {
+		animation: nw-icon-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s backwards;
+	}
+
+	@keyframes nw-icon-bounce {
+		from {
+			opacity: 0;
+			transform: scale(0.3) rotate(-15deg);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1) rotate(0deg);
+		}
+	}
+
+	/* Temperature counter-style reveal */
+	.nw-temp-reveal {
+		animation: nw-temp-count 0.45s cubic-bezier(0.32, 0.72, 0, 1) 0.12s backwards;
+	}
+
+	@keyframes nw-temp-count {
+		from {
+			opacity: 0;
+			transform: translateY(16px) scale(0.85);
+			filter: blur(4px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+			filter: blur(0);
+		}
+	}
+
+	/* Detail items stagger */
+	.nw-detail-anim {
+		animation: nw-detail-fade 0.35s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+	}
+
+	@keyframes nw-detail-fade {
+		from {
+			opacity: 0;
+			transform: translateY(6px) scale(0.95);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
+	}
+
+	/* Forecast day stagger */
+	.nw-fday-anim {
+		animation: nw-fday-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+	}
+
+	@keyframes nw-fday-pop {
+		from {
+			opacity: 0;
+			transform: translateY(10px) scale(0.9);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.nw-stagger,
+		.nw-text-reveal,
+		.nw-icon-pop,
+		.nw-temp-reveal,
+		.nw-detail-anim,
+		.nw-fday-anim {
+			animation: none !important;
+		}
+
+		.nav-weather-dropdown {
+			animation-duration: 0.15s !important;
+		}
+	}
+
+	/* ——— City Selector ——— */
+	.nw-city-selector {
+		display: flex;
+		gap: 3px;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.nw-city-selector::-webkit-scrollbar { display: none; }
+
+	.nw-city-btn {
+		font-family: var(--font-text);
+		font-size: 0.625rem;
+		font-weight: 500;
+		padding: 3px 8px;
+		border-radius: 980px;
+		border: none;
+		background: rgba(0, 0, 0, 0.04);
+		color: var(--apple-eyebrow);
+		cursor: pointer;
+		transition: background 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+					color 0.2s,
+					transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1);
+		white-space: nowrap;
+	}
+
+	:global([prefers-color-scheme='dark']) .nw-city-btn {
+		background: rgba(255, 255, 255, 0.06);
+	}
+
+	.nw-city-btn:hover {
+		background: rgba(0, 0, 0, 0.08);
+		color: var(--fg);
+		transform: scale(1.05);
+	}
+
+	:global([prefers-color-scheme='dark']) .nw-city-btn:hover {
+		background: rgba(255, 255, 255, 0.12);
+	}
+
+	.nw-city-btn:active {
+		transform: scale(0.95);
+	}
+
+	.nw-city-btn.active {
+		background: var(--fg);
+		color: var(--bg);
+		font-weight: 600;
+	}
+
+	/* ——— Main weather display ——— */
+	.nw-main {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.nw-left {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
+	.nw-city-name {
+		font-family: var(--font-main);
+		font-size: 1rem;
+		font-weight: 600;
+		color: var(--fg);
+		letter-spacing: -0.02em;
+	}
+
+	.nw-condition {
+		font-size: 0.75rem;
+		color: var(--apple-eyebrow);
+	}
+
+	.nw-right {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.nw-big-icon {
+		font-size: 2.25rem;
+		line-height: 1;
+		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+	}
+
+	.nw-big-temp {
+		font-family: var(--font-main);
+		font-size: 2.75rem;
+		font-weight: 200;
+		letter-spacing: -0.04em;
+		line-height: 1;
+		color: var(--fg);
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* ——— Detail bar ——— */
+	.nw-details {
+		display: flex;
+		align-items: center;
+		background: rgba(0, 0, 0, 0.03);
+		border-radius: 10px;
+		padding: 8px 0;
+	}
+
+	:global([prefers-color-scheme='dark']) .nw-details {
+		background: rgba(255, 255, 255, 0.04);
+	}
+
+	.nw-detail {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 2px;
+	}
+
+	.nw-detail-label {
+		font-size: 0.5625rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--apple-eyebrow);
+		font-weight: 500;
+	}
+
+	.nw-detail-val {
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: var(--fg);
+		font-variant-numeric: tabular-nums;
+	}
+
+	.nw-detail-val small {
+		font-size: 0.5625rem;
+		font-weight: 400;
+		opacity: 0.6;
+		margin-left: 1px;
+	}
+
+	.nw-detail-sep {
+		width: 1px;
+		height: 20px;
+		background: rgba(0, 0, 0, 0.06);
+	}
+
+	:global([prefers-color-scheme='dark']) .nw-detail-sep {
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	/* ——— Forecast strip ——— */
+	.nw-forecast {
+		display: flex;
+		gap: 0;
+		border-top: 1px solid rgba(0, 0, 0, 0.05);
+		padding-top: 10px;
+	}
+
+	:global([prefers-color-scheme='dark']) .nw-forecast {
+		border-top-color: rgba(255, 255, 255, 0.06);
+	}
+
+	.nw-fday {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.nw-fday-name {
+		font-size: 0.5625rem;
+		font-weight: 600;
+		color: var(--apple-eyebrow);
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+	}
+
+	.nw-fday-icon {
+		font-size: 1.125rem;
+		line-height: 1;
+		transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	}
+
+	.nw-fday:hover .nw-fday-icon {
+		transform: scale(1.25);
+	}
+
+	.nw-fday-temps {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1px;
+	}
+
+	.nw-fday-hi {
+		font-size: 0.6875rem;
+		font-weight: 600;
+		color: var(--fg);
+	}
+
+	.nw-fday-lo {
+		font-size: 0.625rem;
+		color: var(--apple-eyebrow);
+	}
+
+	/* ——— Responsive ——— */
+	@media (max-width: 900px) {
+		.nav-weather-wrap {
+			order: -1;
+		}
+
+		.nav-weather-dropdown {
+			right: -60px;
+			width: min(320px, calc(100vw - 32px));
+		}
+
+		.nw-dropdown-arrow {
+			right: 72px;
+		}
+	}
+
+	@media (max-width: 374px) {
+		.nav-weather-dropdown {
+			right: -80px;
+			width: min(290px, calc(100vw - 16px));
+		}
+
+		.nw-dropdown-arrow {
+			right: 92px;
 		}
 	}
 </style>

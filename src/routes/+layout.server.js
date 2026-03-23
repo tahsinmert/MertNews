@@ -1,4 +1,5 @@
 import { fetchCurrencyData } from '$lib/server/currency';
+import { fetchWeatherData } from '$lib/server/weather';
 import { getFeedNavColumns } from '$lib/server/rss';
 
 /** @type {import('./$types').LayoutServerLoad} */
@@ -24,12 +25,15 @@ export async function load({ cookies, request }) {
         cookies.set('locale', locale, { path: '/', maxAge: 60 * 60 * 24 * 365 });
     }
 
-    // Fetch Live Currency Data
-    const currencyData = await fetchCurrencyData();
+    const [currencyData, weatherData] = await Promise.all([
+        fetchCurrencyData(),
+        fetchWeatherData()
+    ]);
 
     return {
         locale,
         currencyData,
+        weatherData,
         feedNav: getFeedNavColumns()
     };
 }

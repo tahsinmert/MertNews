@@ -1,5 +1,6 @@
 <script>
 	import NewsCard from '../../components/NewsCard.svelte';
+	import LiveScoreTicker from '../../components/LiveScoreTicker.svelte';
 	import AppleHorizontalScroll from '../../components/AppleHorizontalScroll.svelte';
 	import { t } from '$lib/i18n';
 
@@ -16,18 +17,24 @@
 </script>
 
 <svelte:head>
-	<title>{$t('section.all')} - MertNews</title>
+	<title>{$t('nav.sports')} - MertNews</title>
 </svelte:head>
 
 <main>
 	<header class="category-header">
 		<div class="container header-content">
-			<h1 class="animate-reveal">{$t('section.all')}</h1>
+			<h1 class="animate-reveal">{$t('nav.sports')}</h1>
 			<p class="header-subtitle animate-reveal" style="animation-delay: 0.1s">
 				{$t('category.subtitle')}
 			</p>
 		</div>
 	</header>
+
+	<div class="livescore-strip apple-gallery-strip">
+		<div class="apple-gallery-strip-inner container">
+			<LiveScoreTicker data={data.livescoreData} />
+		</div>
+	</div>
 
 	<div class="apple-gallery-strip">
 		<div class="apple-gallery-strip-inner news-feed">
@@ -139,6 +146,10 @@
 		.promo-cell:nth-child(odd) {
 			border-right: none;
 		}
+	}
+
+	.livescore-strip {
+		padding: 2.5rem 0 1rem;
 	}
 </style>
 
