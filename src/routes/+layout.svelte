@@ -6,12 +6,12 @@
 	import { navigating } from '$app/stores';
 	import { locale } from '$lib/i18n';
 	import { fade } from 'svelte/transition';
+	import { onMount } from 'svelte';
 	import '../app.css';
 
 	/** @type {import('./$types').LayoutData} */
 	export let data;
 
-	// Initial locale sync from server cookie
 	$: if (data.locale) {
 		locale.set(data.locale);
 	}
@@ -19,6 +19,12 @@
 	$: if (typeof document !== 'undefined') {
 		document.documentElement.lang = $locale;
 	}
+
+	onMount(() => {
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js').catch(() => {});
+		}
+	});
 </script>
 
 {#if $navigating}
@@ -39,14 +45,19 @@
 </div>
 
 <style>
+	:global(html),
 	:global(body) {
 		overflow-x: hidden;
+		overscroll-behavior-x: none;
 	}
 	
 	.app-layout {
 		min-height: 100vh;
+		min-height: 100dvh;
 		display: flex;
 		flex-direction: column;
+		overflow-x: hidden;
+		width: 100%;
 	}
 
 	.loading-bar {

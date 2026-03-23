@@ -199,8 +199,7 @@
 	/* Tam genişlik kaydırma — apple.com “gallery” hizası */
 	.apple-hscroll__viewport {
 		position: relative;
-		width: 100vw;
-		margin-left: calc(50% - 50vw);
+		width: 100%;
 	}
 
 	.apple-hscroll__track {
