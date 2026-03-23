@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="tr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>MertNews</title>
+
+		<!-- Favicon & Apple Touch Icon -->
+		<link rel="icon" type="image/png" sizes="32x32" href="%sveltekit.assets%/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="%sveltekit.assets%/favicon-16x16.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<link rel="manifest" href="%sveltekit.assets%/site.webmanifest" />
+		<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+		%sveltekit.head%
+		<style>
+			:root {
+				--bg: #0a0a0a;
+				--fg: #ffffff;
+				--accent: #3b82f6;
+				--accent-hover: #2563eb;
+				--card-bg: #111111;
+				--card-border: #222222;
+				--muted: #888888;
+				--font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+			}
+			body {
+				background-color: var(--bg);
+				color: var(--fg);
+				font-family: var(--font-sans);
+				margin: 0;
+				-webkit-font-smoothing: antialiased;
+			}
+		</style>
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

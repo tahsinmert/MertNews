@@ -1,0 +1,21 @@
+{
+  "name": "sveltekit-news",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "next",
+    "@sveltejs/kit": "next",
+    "svelte": "next",
+    "vite": "latest"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.5.8",
+    "lucide-svelte": "latest",
+    "rss-parser": "^3.13.0"
+  }
+}
