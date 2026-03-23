@@ -116,11 +116,6 @@ body {
 a {
 	color: inherit;
 	text-decoration: none;
-	transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-a:hover {
-	opacity: 0.8;
 }
 
 h1, h2, h3, h4 {
@@ -198,7 +193,7 @@ h1, h2, h3, h4 {
 }
 
 .apple-link-cta:hover {
-	opacity: 0.85;
+	color: var(--apple-blue-hover);
 	text-decoration: none;
 }
 

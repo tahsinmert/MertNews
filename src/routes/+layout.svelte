@@ -27,7 +27,7 @@
 	</div>
 {/if}
 
-<div class="app-layout" class:loading={!!$navigating}>
+<div class="app-layout">
 	<Navbar feedNav={data.feedNav ?? []} />
 	<CurrencyTicker data={data.currencyData} />
 	<main class="main-fill">
@@ -44,15 +44,9 @@
 	}
 	
 	.app-layout {
-		transition: filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
-	}
-	
-	.app-layout.loading {
-		filter: blur(8px);
-		pointer-events: none;
 	}
 
 	.loading-bar {
@@ -60,25 +54,20 @@
 		top: 0;
 		left: 0;
 		width: 100%;
-		height: 3px;
-		background: var(--apple-blue);
+		height: 2px;
 		z-index: 9999;
 		overflow: hidden;
 	}
 
 	.glow {
 		position: absolute;
-		top: 0;
-		left: -50%;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-		animation: loading-shimmer 1.5s infinite;
-		box-shadow: 0 0 15px var(--apple-blue);
+		inset: 0;
+		background: linear-gradient(90deg, transparent 0%, var(--apple-blue) 50%, transparent 100%);
+		animation: loading-slide 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 	}
 
-	@keyframes loading-shimmer {
-		from { transform: translateX(0); }
+	@keyframes loading-slide {
+		from { transform: translateX(-100%); }
 		to { transform: translateX(200%); }
 	}
 

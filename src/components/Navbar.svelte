@@ -585,11 +585,6 @@
 <SearchOverlay isOpen={isSearchOpen} close={toggleSearch} />
 
 <style>
-	.nav-shell :global(a:hover),
-	.nav-shell :global(button:hover) {
-		opacity: 1;
-	}
-
 	.nav-shell {
 		position: fixed;
 		top: 0;

@@ -12,7 +12,7 @@
 	<div class="container footer-content">
 		<div class="footer-brand">
 			<a href="/" class="footer-logo-link">
-				<img src="/logo.png" alt="MertNews" class="footer-logo-img" width="36" height="36" />
+				<img src="/logo.png" alt="MertNews" class="footer-logo-img" width="20" height="20" />
 			</a>
 		</div>
 		<nav class="footer-nav" aria-label="Footer navigation">
@@ -64,19 +64,15 @@
 
 <style>
 	.footer {
-		margin-top: 4rem;
-		padding: 4rem 0 2.25rem;
+		margin-top: 0;
+		padding: 1.75rem 0 1.5rem;
 		border-top: 1px solid var(--card-border);
-		background:
-			radial-gradient(900px 360px at 50% 0%, rgba(0, 102, 204, 0.14), transparent 60%),
-			linear-gradient(180deg, var(--apple-gray-100), var(--apple-white));
+		background: var(--apple-gray-100);
 		color: var(--muted);
 	}
 
 	:global([prefers-color-scheme='dark']) .footer {
-		background:
-			radial-gradient(900px 360px at 50% 0%, rgba(10, 132, 255, 0.22), transparent 55%),
-			linear-gradient(180deg, var(--apple-gray-600), var(--apple-gray-600));
+		background: var(--apple-gray-600);
 	}
 
 	.footer-content {
@@ -89,81 +85,62 @@
 	.footer-brand {
 		display: flex;
 		align-items: center;
-		margin-bottom: 2rem;
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid var(--card-border);
 	}
 
 	.footer-logo-link {
 		display: inline-flex;
 		align-items: center;
-		opacity: 0.85;
 		transition: opacity 0.2s ease;
 	}
 
 	.footer-logo-link:hover {
-		opacity: 1;
+		opacity: 0.7;
 	}
 
 	.footer-logo-img {
-		width: 36px;
-		height: 36px;
+		width: 20px;
+		height: 20px;
 		object-fit: contain;
 	}
 
 	.footer-nav {
 		display: grid;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 28px;
-		padding-bottom: 38px;
+		gap: 20px;
+		padding-bottom: 20px;
 		border-bottom: 1px solid var(--card-border);
 	}
 
 	.footer-col {
 		display: flex;
 		flex-direction: column;
-		gap: 0.6rem;
+		gap: 0.35rem;
 	}
 
 	.footer-col h3 {
 		color: var(--fg);
-		font-size: 0.72rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.12em;
-		margin-bottom: 0.25rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+		margin-bottom: 0.15rem;
 	}
 
 	.footer-link {
 		display: inline-flex;
 		align-items: center;
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: 0.75rem;
 		letter-spacing: -0.01em;
-		padding: 4px 0;
-		position: relative;
-		transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s;
-	}
-
-	.footer-link::after {
-		content: '';
-		position: absolute;
-		left: 0;
-		right: 0;
-		bottom: -1px;
-		height: 1px;
-		background: var(--accent);
-		opacity: 0.7;
-		transform: scaleX(0);
-		transform-origin: left;
-		transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		padding: 2px 0;
+		transition: color 0.2s ease;
 	}
 
 	.footer-link:hover {
 		color: var(--fg);
-		opacity: 1;
-	}
-
-	.footer-link:hover::after {
-		transform: scaleX(1);
+		text-decoration: underline;
 	}
 
 	.footer-link:focus-visible {
@@ -174,11 +151,6 @@
 
 	.footer-link.is-active {
 		color: var(--fg);
-		font-weight: 600;
-	}
-
-	.footer-link.is-active::after {
-		transform: scaleX(1);
 	}
 
 	.footer-bottom {

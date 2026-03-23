@@ -116,10 +116,10 @@
 				</AppleHorizontalScroll>
 			{/if}
 
-			<div class="news-grid">
+			<div class="promo-grid">
 				{#if gridArticles.length > 0}
-					{#each gridArticles as article, i (article.link)}
-						<div class="grid-item animate-reveal" style="animation-delay: {0.05 * (i % 6)}s">
+					{#each gridArticles as article (article.link)}
+						<div class="promo-cell">
 							<NewsCard {article} layout="grid" />
 						</div>
 					{/each}
@@ -362,13 +362,30 @@
 		color: var(--fg);
 	}
 
-	.news-grid {
+	.promo-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 24px;
-		padding: 1.5rem 0 0;
-		max-width: 1400px;
-		margin: 0 auto;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0;
+		width: 100%;
+	}
+
+	.promo-cell {
+		min-width: 0;
+		border-top: 1px solid var(--card-border);
+	}
+
+	.promo-cell:nth-child(odd) {
+		border-right: 1px solid var(--card-border);
+	}
+
+	@media (max-width: 734px) {
+		.promo-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.promo-cell:nth-child(odd) {
+			border-right: none;
+		}
 	}
 
 	.no-news {
